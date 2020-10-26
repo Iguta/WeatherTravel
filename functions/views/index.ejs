@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#0e3f4f">
+    <meta name="msapplication-TileColor" content="#23ad79">
+
+
+	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/assets/main.css"/>
+	<title>WeaTravel</title>
+</head>
+<body>
+	<div class="container-fluid main-container">
+        <h2>WeaTravel</h2>
+        <form class="search-form" method="post" action="/post-search" id="searchForm">
+            <input 
+                type="search" 
+                placeholder="search a place"
+                name="searchPlace" 
+                id="searchPlace"
+                required
+             />
+             <span class="search-bttn" id="search-bttn">  
+                <i class="material-icons">
+                    search
+                </i>
+            </span>
+        </form>
+        <div class="geolocation" id="geo-search">
+            <i class="material-icons">
+                place
+            </i>
+            use current location
+        </div>
+
+        <div class="row data-display">
+            <div class="col-sm-3 column-1">
+                <% let url = "http://openweathermap.org/img/wn/"; %>
+                <% let timezone = dataObj.timezone %>
+                <% let iconUrl = null %>
+                <% let averageDailyTemp = null; %>
+                <% let currentDay = true %>
+                <% dataObj.daily.forEach((item) => { %>
+                    <% if (!currentDay) { %>
+                        <% iconUrl = `${url}${item.weather[0].icon}@2x.png` %>
+                        <div class="flex-row">
+                            <div class="icon-description">
+                                <img src="<%= iconUrl %>"/>
+                                <h5><%= item.weather[0].description %></h5>
+                            </div>
+                            <div class="day">
+                                <% let arrDays = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]; %>
+                                <% let dateTimezone = new Date((item.dt)*1000).toLocaleString("en-US", {timeZone : `${timezone}`}); %>
+                                <% let day = new Date(dateTimezone).getDay(); %>
+                                <% let dayStr = arrDays[day] %>
+                                <h3><%= dayStr[0] %></h3>
+                                <h3><%= dayStr[1] %></h3>
+                                <h3><%= dayStr[2] %></h3>
+                            </div>
+                            <div class="temperature">
+                                <% averageDailyTemp = (item.temp.min + item.temp.max)/2; %>
+                                <h3><%= averageDailyTemp.toFixed(1) %>°C</h3>
+                            </div>
+                        </div>
+                   <% } %>
+                  <% currentDay = false %>
+
+               <% }); %> 
+            </div>  
+
+            <div class="col-sm-6 column-2">
+                <div class="current-time">
+                    <% let currentTime = new Date((dataObj.current.dt)*1000).toLocaleString("en-US",
+                    {timezone:`${timezone}`, hour:"numeric", minute:"numeric", hour12:true}); %>
+                    <h2><%= currentTime %></h2>
+                </div>
+                <div class="current">
+                    <div class="current-icon">
+                        <% iconUrl = `${url}${dataObj.current.weather[0].icon}@2x.png` %>
+                        <img src="<%= iconUrl %>"/>
+                        <h4><%= dataObj.current.weather[0].description%></h4>
+                    </div>
+                    <div class="current-param">
+                        <h3><%= dataObj.current.temp %>°C</h3>
+                        <h4><%= dataObj.current.wind_speed %> m/s</h4>
+                        <h4><%= dataObj.current.visibility %> m</h4>
+                        <h4><%= dataObj.current.pressure %> hPa</h4>
+                    </div>
+                </div>
+                <div>
+                    <% let currentDate = new Date((dataObj.current.dt)*1000).toDateString(); %>
+                    <h3><%= currentDate %></h3>
+                </div>
+
+                <div class="current-place">
+                    <h2 id="currentPlace"> <%= place %></h2>
+                </div>
+
+                <div class="hourly scrollbar scrollbar-ripe-malinka">
+                    <% let hourlyTime = null %>
+                    <% dataObj.hourly.forEach((item, index) => { %>
+                    <% if(index<24) { %>
+                        <% hourlyTime = new Date((item.dt)*1000).toLocaleString("en-US",
+                        {timezone:`${timezone}`, hour:"numeric", minute:"numeric", hour12:true}); %>
+                        <div class="hourly-description">
+                           <h3> <%= hourlyTime %></h3>
+                           <% iconUrl = `${url}${item.weather[0].icon}@2x.png` %>
+                           <img src="<%= iconUrl %>"/>
+                           <h3><%= item.temp %>°C</h3>
+                           <h3><%= item.pressure %>hPa</h3>
+                           <h3><%= item.visibility %> m</h3>
+                           <h3><%= item.wind_speed %> m/s</h3>
+                    </div>
+                    <% } %>
+                     <% }) %>
+                
+
+                </div>
+            </div>
+
+            <div class="col-sm-3 column-3">
+                <div class="image">
+                    <img src="/assets/images/img_2.png"/>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCHqUAmQeBeQ3nKoSU-wnPOfaKzKJ2o2AM"> -->
+    </script>
+    <script src="scripts/search.js"></script>
+    <script src="/host.js"></script>
+    <!-- <script src="/scripts/sw.js"></script> -->
+</body>
+</html>
